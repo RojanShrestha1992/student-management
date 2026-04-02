@@ -12,13 +12,23 @@ const app = express();
 
 app.use(
 	cors({
-		origin: process.env.CLIENT_URL || "http://localhost:5173",
+		origin: (origin, callback) => {
+			const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
+			if (!origin || origin === allowedOrigin || /\.vercel\.app$/i.test(new URL(origin).hostname) || origin.includes("localhost")) {
+				return callback(null, true);
+			}
+			return callback(new Error("Not allowed by CORS"));
+		},
 		credentials: true,
 	})
 );
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
+
+app.get("/", (req, res) => {
+	res.status(200).json({ message: "Student Management API is running" });
+});
 
 app.get("/api/v1/health", (req, res) => {
 	res.status(200).json({ message: "Server is running" });
