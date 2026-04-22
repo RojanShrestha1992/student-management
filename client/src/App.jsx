@@ -14,8 +14,18 @@ const App = () => {
 				toastOptions={{
 					style: {
 						borderRadius: "12px",
-						background: "#0f172a",
+						background: "#13263d",
 						color: "#fff",
+					},
+					success: {
+						style: {
+							background: "#0b8a6c",
+						},
+					},
+					error: {
+						style: {
+							background: "#c43e67",
+						},
 					},
 				}}
 			/>

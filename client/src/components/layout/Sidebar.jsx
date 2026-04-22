@@ -3,6 +3,14 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 const Sidebar = ({ role }) => {
   const location = useLocation();
 
+  const roleActiveClassByRole = {
+    admin: "bg-blue-600 shadow-sm",
+    teacher: "bg-emerald-600 shadow-sm",
+    student: "bg-amber-500 shadow-sm",
+  };
+
+  const roleActiveClass = roleActiveClassByRole[role] || "bg-slate-900 shadow-sm";
+
   const linksByRole = {
     admin: [
       { label: "Dashboard", to: "/admin" },
@@ -55,7 +63,7 @@ const Sidebar = ({ role }) => {
               className={[
                 "flex items-center rounded-2xl px-4 py-3 text-sm font-medium transition",
                 isAdminRecentActivityActive
-                  ? "bg-slate-900 shadow-sm"
+                  ? "bg-blue-600 shadow-sm"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
               ].join(" ")}
             >
@@ -71,7 +79,7 @@ const Sidebar = ({ role }) => {
                 [
                   "flex items-center rounded-2xl px-4 py-3 text-sm font-medium transition",
                   isActive
-                    ? "bg-slate-900 shadow-sm"
+                    ? roleActiveClass
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
                 ].join(" ")
               }
