@@ -19,12 +19,14 @@ const AppShell = () => {
       { label: "My Classes", to: "/teacher/classes" },
       { label: "Attendance", to: "/teacher/attendance" },
       { label: "Grades", to: "/teacher/grades" },
+      { label: "Upload Files", to: "/teacher/upload-files" },
     ],
     student: [
       { label: "Dashboard", to: "/student" },
       { label: "Profile", to: "/student/profile" },
       { label: "Attendance", to: "/student/attendance" },
       { label: "Grades", to: "/student/grades" },
+      { label: "Materials", to: "/student/materials" },
       { label: "Announcements", to: "/student/announcements" },
     ],
   };

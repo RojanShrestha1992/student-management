@@ -9,6 +9,7 @@ import AdminCrudPage from "../pages/admin/AdminCrudPage";
 import RecentActivityPage from "../pages/admin/RecentActivityPage";
 import TeacherDashboard from "../pages/teacher/TeacherDashboard";
 import TeacherSectionPage from "../pages/teacher/SectionPage";
+import UploadFilesPage from "../pages/teacher/UploadFilesPage";
 import StudentDashboard from "../pages/student/StudentDashboard";
 import StudentSectionPage from "../pages/student/SectionPage";
 
@@ -86,6 +87,7 @@ const AppRoutes = () => {
               />
             }
           />
+          <Route path="/teacher/upload-files" element={<UploadFilesPage />} />
 
           <Route path="/student" element={<StudentDashboard />} />
           <Route
@@ -115,6 +117,16 @@ const AppRoutes = () => {
                 section="grades"
                 title="Grades"
                 description="Review report cards, assessment marks, and subject-level performance."
+              />
+            }
+          />
+          <Route
+            path="/student/materials"
+            element={
+              <StudentSectionPage
+                section="materials"
+                title="Materials"
+                description="Download assignments, question papers, and study resources shared by your teacher."
               />
             }
           />

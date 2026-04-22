@@ -3,6 +3,7 @@ const Attendance = require("../../models/Attendance");
 const Grade = require("../../models/Grade");
 const Announcement = require("../../models/Announcement");
 const Class = require("../../models/Class");
+const StudyMaterial = require("../../models/StudyMaterial");
 
 const getMyProfile = async (req, res, next) => {
   try {
@@ -97,10 +98,33 @@ const getMyClass = async (req, res, next) => {
   }
 };
 
+const getMyMaterials = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select("studentDetails.class");
+
+    if (!user || !user.studentDetails?.class) {
+      return res.status(200).json({ materials: [] });
+    }
+
+    const materials = await StudyMaterial.find({
+      class: user.studentDetails.class,
+      isActive: true,
+    })
+      .populate("class", "name section subject code")
+      .populate("uploadedBy", "name email role")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({ materials });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   getMyProfile,
   getMyAttendance,
   getMyGrades,
   getMyAnnouncements,
   getMyClass,
+  getMyMaterials,
 };

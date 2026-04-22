@@ -23,6 +23,11 @@ const sectionConfig = {
     description: "See the latest notices shared by the admin team.",
     endpoint: "/student/announcements",
   },
+  materials: {
+    pageTitle: "Materials",
+    description: "Download assignments, question papers, and study resources shared by your teacher.",
+    endpoint: "/student/materials",
+  },
 };
 
 const StudentSectionPage = ({ section = "profile", title, description }) => {
@@ -159,6 +164,61 @@ const StudentSectionPage = ({ section = "profile", title, description }) => {
                   </tr>
                 )) : (
                   <EmptyRow colSpan={6} text="No grades found yet." />
+                )}
+              </tbody>
+            </table>
+          </TableCard>
+        </div>
+      );
+    }
+
+    if (section === "materials") {
+      const materials = data.materials || [];
+
+      return (
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-3">
+            <SummaryCard label="Total files" value={materials.length} />
+            <SummaryCard label="Latest upload" value={materials[0] ? formatDate(materials[0].createdAt) : "-"} />
+            <SummaryCard
+              label="With due dates"
+              value={materials.filter((item) => Boolean(item.dueDate)).length}
+            />
+          </div>
+
+          <TableCard title="Shared materials">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead className="bg-slate-50 text-slate-600">
+                <tr>
+                  <TableHeadCell>Title</TableHeadCell>
+                  <TableHeadCell>Type</TableHeadCell>
+                  <TableHeadCell>Teacher</TableHeadCell>
+                  <TableHeadCell>Due date</TableHeadCell>
+                  <TableHeadCell>Action</TableHeadCell>
+                </tr>
+              </thead>
+              <tbody>
+                {materials.length ? materials.map((item) => (
+                  <tr key={item._id} className="border-t border-slate-200">
+                    <TableCell>{item.title}</TableCell>
+                    <TableCell>
+                      <span className="capitalize">{item.type || "other"}</span>
+                    </TableCell>
+                    <TableCell>{item.uploadedBy?.name || "Teacher"}</TableCell>
+                    <TableCell>{formatDate(item.dueDate)}</TableCell>
+                    <TableCell>
+                      <a
+                        href={item.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+                      >
+                        Download
+                      </a>
+                    </TableCell>
+                  </tr>
+                )) : (
+                  <EmptyRow colSpan={5} text="No materials shared yet." />
                 )}
               </tbody>
             </table>

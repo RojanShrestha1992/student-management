@@ -6,6 +6,7 @@ const {
   getMyGrades,
   getMyAnnouncements,
   getMyClass,
+  getMyMaterials,
 } = require("../../controllers/student/studentController");
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.get("/class", getMyClass);
 router.get("/attendance", getMyAttendance);
 router.get("/grades", getMyGrades);
 router.get("/announcements", getMyAnnouncements);
+router.get("/materials", getMyMaterials);
 
 module.exports = router;
