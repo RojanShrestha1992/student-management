@@ -50,6 +50,10 @@ const studyMaterialSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    fileData: {
+      type: Buffer,
+      select: false,
+    },
     dueDate: {
       type: Date,
     },

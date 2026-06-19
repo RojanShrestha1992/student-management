@@ -1,26 +1,6 @@
-const fs = require("fs");
-const path = require("path");
 const multer = require("multer");
 
-const uploadsDir = path.join(__dirname, "..", "..", "uploads", "materials");
-
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const safeBaseName = path.basename(file.originalname, path.extname(file.originalname))
-      .replace(/[^a-zA-Z0-9-_]/g, "-")
-      .slice(0, 50);
-
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`;
-    cb(null, `${safeBaseName || "file"}-${uniqueName}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const allowedMimeTypes = new Set([
   "application/pdf",

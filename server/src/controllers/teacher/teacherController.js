@@ -2,8 +2,19 @@ const Class = require("../../models/Class");
 const Attendance = require("../../models/Attendance");
 const Grade = require("../../models/Grade");
 const User = require("../../models/User");
+const fs = require("fs");
 const path = require("path");
+const { Types } = require("mongoose");
 const StudyMaterial = require("../../models/StudyMaterial");
+
+const buildMaterialFileUrl = (req, materialId) => {
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const forwardedHost = req.headers["x-forwarded-host"];
+  const protocol = Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || req.protocol;
+  const host = Array.isArray(forwardedHost) ? forwardedHost[0] : forwardedHost || req.get("host");
+
+  return `${protocol}://${host}/api/v1/materials/${materialId}/file`;
+};
 
 const getMyClasses = async (req, res, next) => {
   try {
@@ -227,10 +238,12 @@ const uploadStudyMaterial = async (req, res, next) => {
       return res.status(403).json({ message: "Not allowed for this class" });
     }
 
-    const relativePath = path.relative(process.cwd(), req.file.path).replace(/\\/g, "/");
-    const fileUrl = `${req.protocol}://${req.get("host")}/${relativePath}`;
+    const materialId = new Types.ObjectId();
+    const fileUrl = buildMaterialFileUrl(req, materialId);
+    const filePath = `materials/${materialId.toString()}/file`;
 
     const material = await StudyMaterial.create({
+      _id: materialId,
       class: classId,
       uploadedBy: req.user.id,
       title: title.trim(),
@@ -238,18 +251,62 @@ const uploadStudyMaterial = async (req, res, next) => {
       description,
       dueDate: dueDate || undefined,
       fileName: req.file.originalname,
-      filePath: relativePath,
+      filePath,
       fileUrl,
       mimeType: req.file.mimetype,
       fileSize: req.file.size,
+      fileData: req.file.buffer,
     });
+
+    const savedMaterial = await StudyMaterial.findById(material._id)
+      .select("-fileData")
+      .populate("class", "name section subject code")
+      .populate("uploadedBy", "name email role");
 
     return res.status(201).json({
       message: "File uploaded successfully",
-      material: await StudyMaterial.findById(material._id)
-        .populate("class", "name section subject code")
-        .populate("uploadedBy", "name email role"),
+      material: savedMaterial,
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const getStudyMaterialFile = async (req, res, next) => {
+  try {
+    const material = await StudyMaterial.findById(req.params.materialId).select("+fileData");
+
+    if (!material || !material.isActive) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    if (material.fileData) {
+      const fileName = material.fileName || "download";
+      const safeFileName = fileName.replace(/"/g, '\\"');
+
+      res.setHeader("Content-Type", material.mimeType || "application/octet-stream");
+      res.setHeader("Content-Length", material.fileSize);
+      res.setHeader("Content-Disposition", `inline; filename="${safeFileName}"`);
+
+      return res.status(200).send(material.fileData);
+    }
+
+    if (material.filePath) {
+      const fallbackPath = path.isAbsolute(material.filePath)
+        ? material.filePath
+        : path.join(process.cwd(), material.filePath);
+
+      if (fs.existsSync(fallbackPath)) {
+        res.setHeader("Content-Type", material.mimeType || "application/octet-stream");
+        res.setHeader("Content-Disposition", `inline; filename="${(material.fileName || "download").replace(/"/g, '\\"')}"`);
+
+        return fs.createReadStream(fallbackPath)
+          .on("error", next)
+          .pipe(res);
+      }
+    }
+
+    return res.status(404).json({ message: "File not found" });
   } catch (error) {
     return next(error);
   }
@@ -261,6 +318,7 @@ const getMyMaterials = async (req, res, next) => {
       uploadedBy: req.user.id,
       isActive: true,
     })
+      .select("-fileData")
       .populate("class", "name section subject code")
       .sort({ createdAt: -1 });
 
@@ -278,5 +336,6 @@ module.exports = {
   upsertGrade,
   getGradesForClass,
   uploadStudyMaterial,
+  getStudyMaterialFile,
   getMyMaterials,
 };

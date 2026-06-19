@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/admin/adminRoutes");
 const teacherRoutes = require("./routes/teacher/teacherRoutes");
 const studentRoutes = require("./routes/student/studentRoutes");
+const { getStudyMaterialFile } = require("./controllers/teacher/teacherController");
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+app.get("/api/v1/materials/:materialId/file", getStudyMaterialFile);
 
 app.get("/", (req, res) => {
 	res.status(200).json({ message: "Student Management API is running" });

@@ -110,6 +110,7 @@ const getMyMaterials = async (req, res, next) => {
       class: user.studentDetails.class,
       isActive: true,
     })
+      .select("-fileData")
       .populate("class", "name section subject code")
       .populate("uploadedBy", "name email role")
       .sort({ createdAt: -1 });
