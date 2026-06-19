@@ -286,7 +286,7 @@ const getStudyMaterialFile = async (req, res, next) => {
 
       res.setHeader("Content-Type", material.mimeType || "application/octet-stream");
       res.setHeader("Content-Length", material.fileSize);
-      res.setHeader("Content-Disposition", `inline; filename="${safeFileName}"`);
+      res.setHeader("Content-Disposition", `attachment; filename="${safeFileName}"`);
 
       return res.status(200).send(material.fileData);
     }
@@ -298,7 +298,7 @@ const getStudyMaterialFile = async (req, res, next) => {
 
       if (fs.existsSync(fallbackPath)) {
         res.setHeader("Content-Type", material.mimeType || "application/octet-stream");
-        res.setHeader("Content-Disposition", `inline; filename="${(material.fileName || "download").replace(/"/g, '\\"')}"`);
+        res.setHeader("Content-Disposition", `attachment; filename="${(material.fileName || "download").replace(/"/g, '\\"')}"`);
 
         return fs.createReadStream(fallbackPath)
           .on("error", next)
